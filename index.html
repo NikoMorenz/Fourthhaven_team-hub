@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0b0e">
+<title>FourthHaven Remote Shift Hub</title>
+<link rel="stylesheet" href="assets/css/styles.css">
+
+</head>
+<body>
+
+
+<div id="authOverlay" class="auth-overlay hidden">
+  <div class="auth-card">
+    <h2 id="authTitle">Employee Login</h2>
+    <p class="sub" id="authSubtitle">Enter your account information to continue.</p>
+
+    <div class="auth-fields">
+      <div class="field hidden" id="authDisplayNameWrap">
+        <label>Employee Name</label>
+        <input type="text" id="authDisplayName" placeholder="First and last name">
+      </div>
+
+      <div class="field">
+        <label>Username</label>
+        <input type="text" id="authUsername" autocomplete="username" placeholder="Username">
+      </div>
+
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="authPassword" autocomplete="current-password" placeholder="Password">
+      </div>
+
+      <div class="field hidden" id="confirmPasswordWrap">
+        <label>Confirm Password</label>
+        <input type="password" id="authPasswordConfirm" autocomplete="new-password" placeholder="Confirm password">
+      </div>
+
+      <div class="field hidden" id="authPhotoWrap">
+        <label>Professional Profile Photo</label>
+        <div class="file-wrap">
+          <img id="authPhotoPreview" class="photo-preview hidden" alt="Profile preview">
+          <input type="file" id="authPhotoInput" accept="image/*">
+          <div class="auth-photo-copy">
+            Use a clear, professional-looking photo of yourself. Good lighting, one person only, face clearly visible.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="auth-error" id="authError"></div>
+    <button type="button" id="forgotManagerPassword" class="hidden" style="width:100%;margin-top:6px">Forgot Manager Password?</button>
+    <div class="auth-actions">
+      <button type="button" id="authCancel">Cancel</button>
+      <button type="button" class="primary" id="authSubmit">Continue</button>
+    </div>
+  </div>
+</div>
+
+<div id="profileOverlay" class="auth-overlay hidden">
+  <div class="auth-card">
+    <h2>Employee Profile</h2>
+    <p class="sub" id="profileSubtitle">Update your professional profile photo.</p>
+    <div class="file-wrap">
+      <img id="profilePhotoPreview" class="photo-preview" alt="Profile photo">
+      <input type="file" id="profilePhotoInput" accept="image/*">
+      <div class="auth-photo-copy">
+        Use a clear, professional-looking photo. This is what management will see in employee reports.
+      </div>
+    </div>
+    <div class="auth-error" id="profileError"></div>
+    <div class="auth-actions">
+      <button type="button" id="profileCancel">Cancel</button>
+      <button type="button" class="primary" id="profileSave">Save Photo</button>
+    </div>
+  </div>
+</div>
+
+
+<div id="managerEditOverlay" class="auth-overlay hidden">
+  <div class="auth-card modal-wide">
+    <h2 id="managerEditTitle">Manager Edit</h2>
+    <p class="sub" id="managerEditSubtitle">Adjust an employee record. Changes are logged.</p>
+    <div id="managerEditBody"></div>
+    <div class="auth-error" id="managerEditError"></div>
+    <div class="auth-actions">
+      <button type="button" id="managerEditCancel">Cancel</button>
+      <button type="button" class="primary" id="managerEditSave">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+
+<div id="deviceChooser" class="device-chooser">
+  <div class="device-chooser-card">
+    <div class="device-brand">FOURTHHAVEN</div>
+    <h1>How are you viewing the Team Hub?</h1>
+    <p>Choose your device. Nothing about your account, tasks, reports, or saved information changes — only the layout.</p>
+    <div class="device-options">
+      <button type="button" class="device-option" data-device-choice="cell">
+        <span class="device-icon">▯</span>
+        <strong>Cell Phone</strong>
+        <small>Large touch controls · stacked sections · bottom navigation</small>
+      </button>
+      <button type="button" class="device-option" data-device-choice="tablet">
+        <span class="device-icon">▭</span>
+        <strong>Tablet</strong>
+        <small>Touch-friendly · wider cards · simplified navigation</small>
+      </button>
+      <button type="button" class="device-option" data-device-choice="pc">
+        <span class="device-icon">▰</span>
+        <strong>PC / Laptop</strong>
+        <small>Full desktop dashboard · sidebar · expanded reports</small>
+      </button>
+    </div>
+    <button type="button" id="deviceAutoBtn" class="device-auto">Use Recommended Layout</button>
+    <div id="deviceRecommendation" class="device-recommendation"></div>
+  </div>
+</div>
+
+
+<div id="ceoMessageOverlay" class="ceo-overlay hidden">
+  <div class="ceo-modal">
+    <div class="ceo-kicker">Message from the CEO</div>
+    <h2>Before you start today</h2>
+    <div id="ceoLoginMessage" class="ceo-message">No message has been posted yet.</div>
+    <div class="sub" id="ceoLoginTimestamp"></div>
+    <button type="button" class="primary" onclick="acknowledgeCEOMessage()">Read & Continue</button>
+  </div>
+</div>
+
+
+<div id="shiftCompleteOverlay" class="shift-complete-overlay"><div class="shift-complete-card"><div class="shift-scribble">★</div><h1>SHIFT COMPLETE.</h1><p class="sub" id="shiftCompleteCopy" style="font-size:14px;margin-top:8px">Good work today.</p><div class="shift-complete-stats"><div class="shift-complete-stat"><strong id="shiftCompleteTime">—</strong><small>Recorded Time</small></div><div class="shift-complete-stat"><strong id="shiftCompleteTasks">—</strong><small>Tasks Completed</small></div><div class="shift-complete-stat"><strong id="shiftCompleteCommission">—</strong><small>Commission</small></div></div><button type="button" class="primary" onclick="dismissShiftComplete()">RETURN HOME</button></div></div>
+<div id="goodJobOverlay" class="goodjob-overlay">
+  <div class="goodjob-card">
+    <svg class="scribble-face" viewBox="0 0 120 120" aria-hidden="true"><g fill="none" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 48c3-3 8-3 11 0"/><path d="M57 48c3-3 8-3 11 0"/><path d="M28 68c11 13 29 14 42 1"/><path d="M82 76c4-12 5-20 10-20 4 0 2 9 3 12 5-8 9-8 11-5 2 3-2 8-4 11 5-5 9-4 10-1 1 4-4 8-8 12-7 6-14 6-22-1"/><path d="M81 77l-5 19c8 6 18 7 26 2"/></g></svg>
+    <div class="goodjob-bubble">GOOD-JOB!!!</div>
+    <button type="button" class="goodjob-ok" onclick="dismissGoodJob()">OKAY ✓</button>
+  </div>
+</div>
+<div id="paceWarningOverlay" class="pace-overlay">
+  <div class="pace-warning-card">
+    <div class="pace-warning-icon">⚠</div>
+    <div class="pace-warning-count" id="paceWarningCount">WARNING 1/3</div>
+    <h2 id="paceWarningTitle">Slow down.</h2>
+    <p id="paceWarningText">Each task needs real working time before it can be completed.</p>
+    <button type="button" onclick="dismissPaceWarning()">I UNDERSTAND</button>
+  </div>
+</div>
+<div id="paceLockOverlay" class="pace-overlay">
+  <div class="pace-warning-card pace-lock-card">
+    <div class="pace-warning-icon">🔒</div>
+    <h2>ACCOUNT TEMPORARILY LOCKED</h2>
+    <div class="lock-countdown" id="paceLockCountdown">15</div>
+    <p>Three pacing warnings were reached. A Manager Override alert has been recorded. Access will return automatically when the timer reaches zero.</p>
+  </div>
+</div>
+
+<div id="employeeDrawerOverlay" class="employee-drawer-overlay" onclick="if(event.target===this)closeEmployeeDrawer()"><aside class="employee-drawer"><div class="employee-drawer-head"><div><div class="ceo-kicker">Employee Detail</div><h2 id="employeeDrawerName" style="margin:3px 0">Employee</h2></div><button type="button" onclick="closeEmployeeDrawer()">Close</button></div><div id="employeeDrawerBody"></div></aside></div><div id="quickActionOverlay" class="notification-overlay" onclick="if(event.target===this)closeQuickActions()"><aside class="notification-drawer" style="height:auto;max-height:82vh;align-self:flex-end;width:min(560px,100%);border-radius:26px 26px 0 0;border:1px solid #353440"><div class="notification-head"><div><div class="ceo-kicker">Quick Actions</div><h2 style="margin:3px 0">What do you need?</h2></div><button type="button" onclick="closeQuickActions()">Close</button></div><div class="resource-grid" style="grid-template-columns:1fr 1fr"><button type="button" class="primary" onclick="quickGo('#commission')">Report Sale</button><button type="button" onclick="quickGo('#gallery')">Photo Library</button><button type="button" onclick="quickMessageManager()">Message Manager</button><button type="button" onclick="quickGo('#schedule')">Schedule Issue</button><button type="button" onclick="quickGo('#pay')">My Pay</button><button type="button" onclick="quickGo('#resources')">Resources</button></div></aside></div>
+<div id="notificationOverlay" class="notification-overlay" onclick="if(event.target===this)closeNotifications()">
+  <aside class="notification-drawer">
+    <div class="notification-head">
+      <div><div class="ceo-kicker">FourthHaven</div><h2 style="margin:3px 0">Notifications</h2></div>
+      <button type="button" onclick="closeNotifications()">Close</button>
+    </div>
+    <div class="manager-toolbar" style="margin-bottom:12px">
+      <button type="button" onclick="markAllNotificationsRead()">Mark all read</button>
+    </div>
+    <div id="notificationList"></div>
+  </aside>
+</div>
+
+<div id="saveIndicator" class="save-indicator"><span class="save-dot"></span><span id="saveIndicatorText">Saved</span></div>
+<aside class="desktop-sidebar" id="desktopSidebar"><div class="sidebar-brand"><strong>FOURTHHAVEN</strong><small>TEAM HUB · IV</small></div><div class="sidebar-group"><div class="sidebar-label">WORK</div><a class="sidebar-link" href="#overview" data-page-link="overview"><span class="side-icon">H</span><span>Home</span></a><a class="sidebar-link" id="sideShiftLink" href="#0929"><span class="side-icon">✓</span><span>My Shift</span></a><a class="sidebar-link" href="#schedule" data-page-link="schedule"><span class="side-icon">◷</span><span>Schedule</span></a><a class="sidebar-link" href="#pay" data-page-link="pay"><span class="side-icon">$</span><span>My Pay</span></a></div><div class="sidebar-group"><div class="sidebar-label">TOOLS</div><a class="sidebar-link" href="#commission" data-page-link="commission"><span class="side-icon">◇</span><span>Commission</span></a><a class="sidebar-link" href="#gallery" data-page-link="gallery"><span class="side-icon">▧</span><span>Photo Collection</span></a><a class="sidebar-link" href="#inventory" data-page-link="inventory"><span class="side-icon">□</span><span>Products</span></a><a class="sidebar-link" href="#resources" data-page-link="resources"><span class="side-icon">?</span><span>Resources</span></a></div><div class="sidebar-group"><div class="sidebar-label">TEAM</div><a class="sidebar-link" href="#messages" data-page-link="messages"><span class="side-icon">↗</span><span>Messages</span></a><a class="sidebar-link" href="#profile" data-page-link="profile"><span class="side-icon">○</span><span>Profile</span></a></div><div class="sidebar-group sidebar-manager"><div class="sidebar-label">MANAGEMENT</div><a class="sidebar-link" href="#manager" data-page-link="manager"><span class="side-icon">IV</span><span>Control Center</span></a></div><div class="sidebar-account"><div id="sideAvatarFallback" class="side-avatar-fallback">IV</div><img id="sideAvatar" class="side-avatar hidden" alt=""><div><strong id="sideAccountName">Team Hub</strong><small id="sideAccountRole">Sign in to begin</small><small id="sideAccountStatus">FourthHaven IV</small></div></div></aside>
+<div class="app">
+  <header class="header">
+    <div class="header-inner">
+      <div class="brand">
+        <h1>FOURTHHAVEN</h1>
+        <p>Remote Shift Hub · Sep 28 – Oct 1, 2026</p>
+      </div>
+      <div class="actions">
+        <select id="employeeSelect" aria-label="Select employee"></select>
+        <div class="account-chip" id="accountChip">
+          <img id="accountAvatar" class="chip-avatar hidden" alt="">
+          <span>Signed in: <strong id="accountName"></strong></span>
+          <button type="button" class="logout-btn" id="logoutBtn">Log out</button>
+        </div>
+        <button type="button" class="notification-btn" id="notificationBtn" title="Notifications">🔔<span id="notificationBadge" class="notification-badge hidden">0</span></button>
+        <button type="button" class="device-switcher" id="changeDeviceBtn">Device</button>
+        <button class="primary" id="saveBtn">Save</button>
+      </div>
+    </div>
+  </header>
+
+  <nav class="top-tabs" aria-label="Week navigation">
+    <a href="#overview" class="tablink" data-page-link="overview">Week Overview</a>
+    <a href="#0928" class="tablink" data-page-link="0928">Mon 9/28</a>
+    <a href="#0929" class="tablink" data-page-link="0929">Tue 9/29</a>
+    <a href="#1001" class="tablink" data-page-link="1001">Thu 10/1</a>
+    <a href="#gallery" class="tablink" data-page-link="gallery">Photo Collection</a>
+    <a href="#commission" class="tablink" data-page-link="commission">Commission</a>
+    <a href="#messages" class="tablink" data-page-link="messages">Messages</a>
+
+    <a href="#schedule" class="tablink" data-page-link="schedule">Schedule</a>
+    <a href="#pay" class="tablink" data-page-link="pay">My Pay</a>
+    <a href="#inventory" class="tablink" data-page-link="inventory">Products</a>
+    <a href="#resources" class="tablink" data-page-link="resources">Resources</a>
+    <a href="#profile" class="tablink" data-page-link="profile">Profile</a>
+  </nav>
+
+  <main>
+    <section id="page-overview" class="page">
+      <div class="grid">
+
+        <div class="card span12 hub-hero" id="todayCommandCard">
+          <div class="ceo-kicker">Today's Command Center</div>
+          <div class="command-greeting" id="commandGreeting">Welcome to FourthHaven.</div>
+          <div class="sub" id="commandSub">Sign in to load today's priorities.</div>
+          <div class="command-grid">
+            <div class="command-stat"><strong id="commandShift">—</strong><small>Today's Shift</small></div>
+            <div class="command-stat"><strong id="commandTime">—</strong><small>Shift Status</small></div>
+            <div class="command-stat"><strong id="commandTasks">—</strong><small>Tasks</small></div>
+            <div class="command-stat"><strong id="commandCommission">$0.00</strong><small>Commission Today</small></div>
+          </div>
+          <div class="command-actions">
+            <button type="button" onclick="location.hash='#schedule'">View Schedule</button>
+            <button type="button" onclick="location.hash='#commission'">Report Sale</button>
+            <button type="button" onclick="location.hash='#messages'">Team Messages</button>
+            <button type="button" onclick="openNotifications()">Notifications</button>
+          </div>
+          <div class="tool-note" style="margin-top:12px"><strong>Today's goals:</strong> +5 followers · +5 store subscribers · 1 sale minimum · push beyond the minimum when possible.</div>
+        </div>
+
+        <div class="card span8">
+          <h2>Week Overview</h2>
+          <p class="sub">Tap any date to open that day's shift page.</p>
+          <div class="week-grid">
+            <a class="day-card" href="#0928">
+              <strong>Monday · 9/28</strong>
+              <div class="mini" id="0928Summary">Not started</div>
+              <div class="progress" style="margin-top:10px"><div id="0928WeekBar"></div></div>
+            </a>
+            <a class="day-card" href="#0929">
+              <strong>Tuesday · 9/29</strong>
+              <div class="mini" id="0929Summary">Not started</div>
+              <div class="progress" style="margin-top:10px"><div id="0929WeekBar"></div></div>
+            </a>
+            <a class="day-card" href="#1001">
+              <strong>Thursday · 10/1</strong>
+              <div class="mini" id="1001Summary">Not started</div>
+              <div class="progress" style="margin-top:10px"><div id="1001WeekBar"></div></div>
+            </a>
+          </div>
+        </div>
+
+        <div class="card span4">
+          <h3>Weekly Rules</h3>
+          <div class="task"><input type="checkbox" id="rule1" data-save><label for="rule1">Use current numbers only. Never copy numbers from another shift.</label></div>
+          <div class="task"><input type="checkbox" id="rule2" data-save><label for="rule2">Screenshot and report store/customer issues in Discord.</label></div>
+          <div class="task"><input type="checkbox" id="rule3" data-save><label for="rule3">Do not change pricing, inventory, policies, or major store details without approval.</label></div>
+        </div>
+
+
+        <div class="card span12 hidden" id="employeeProfileCard">
+          <div class="profile-row">
+            <img id="employeeProfilePhoto" class="avatar xl" alt="Employee profile">
+            <div class="profile-meta">
+              <h3 id="employeeProfileName">Employee</h3>
+              <p id="employeeProfileUsername">@username</p>
+              <div class="profile-note">Your professional photo is visible to management in the employee report dashboard.</div>
+            </div>
+            <button type="button" id="changeProfilePhotoBtn">Change Profile Photo</button>
+          </div>
+        </div>
+
+        <div class="card span12">
+          <h3>Manager Notes / Weekly Updates</h3>
+          <textarea id="weeklyNotes" data-save placeholder="Add changing priorities, reminders, or instructions for this week."></textarea>
+        </div>
+      </div>
+    </section>
+
+    <section id="page-0928" class="page"><div id="content-0928"></div></section>
+    <section id="page-0929" class="page"><div id="content-0929"></div></section>
+    <section id="page-1001" class="page"><div id="content-1001"></div></section>
+
+
+    <section id="page-gallery" class="page">
+      <div class="grid">
+        <div class="card span12">
+          <div class="statusline"><div><h2>FourthHaven Photo Collection</h2><p class="sub">Approved brand photos for social content. Select what you need, then save/download it for your assigned platform.</p></div><span class="pill">Media Library</span></div>
+          <div id="galleryManagerTools" class="gallery-toolbar hidden" style="margin-top:14px">
+            <input id="galleryUploadInput" type="file" accept="image/*" multiple class="hidden"><select id="galleryCategorySelect" style="width:auto"><option>Nocturne</option><option>Models</option><option>Product</option><option>Social</option></select>
+            <button type="button" class="primary" onclick="document.getElementById('galleryUploadInput').click()">＋ Upload Photos</button>
+            <button type="button" onclick="downloadSelectedGallery()">Download Selected</button>
+            <span class="tool-note">Manager Override can add or remove photos at any time.</span>
+          </div>
+          <div id="galleryEmployeeTools" class="gallery-toolbar" style="margin-top:14px">
+            <button type="button" class="primary" onclick="downloadSelectedGallery()">Download Selected</button>
+            <span class="tool-note">Pick approved photos below. This beta library is device-local until cloud sync is connected.</span>
+          </div>
+          <div class="gallery-filterbar" id="galleryFilters"><button type="button" class="gallery-filter active" data-gallery-filter="All" onclick="setGalleryFilter('All')">ALL</button><button type="button" class="gallery-filter" data-gallery-filter="Nocturne" onclick="setGalleryFilter('Nocturne')">NOCTURNE</button><button type="button" class="gallery-filter" data-gallery-filter="Models" onclick="setGalleryFilter('Models')">MODELS</button><button type="button" class="gallery-filter" data-gallery-filter="Product" onclick="setGalleryFilter('Product')">PRODUCT</button><button type="button" class="gallery-filter" data-gallery-filter="Social" onclick="setGalleryFilter('Social')">SOCIAL</button></div><div id="galleryGrid" class="gallery-grid"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="page-commission" class="page">
+      <div class="grid">
+        <div class="card span12">
+          <div class="statusline"><div><h2>Commission Center</h2><p class="sub">Report sales you directly generated. Commission is 10% of the verified customer spend.</p></div><span class="pill good">10% Commission</span></div>
+        </div>
+        <div id="commissionEmployeeForm" class="span12">
+          <div class="commission-layout">
+            <div class="card">
+              <h3>Report a Sale</h3>
+              <div class="field-grid">
+                <div class="field"><label>Customer Name <span class="req">*</span></label><input id="commissionCustomer" placeholder="Customer name" oninput="updateCommissionPreview()"></div>
+                <div class="field"><label>Sale Date & Time <span class="req">*</span></label><input id="commissionDateTime" type="datetime-local"></div>
+              </div>
+              <div class="field"><label>Customer Total Spent $ <span class="req">*</span></label><input id="commissionSpent" type="number" min="0" step="0.01" placeholder="0.00" oninput="updateCommissionPreview()"></div>
+              <div class="divider"></div>
+              <div class="statusline"><h3 style="margin:0">Products Purchased</h3><button type="button" class="plus-btn" onclick="addCommissionDraftItem()">＋ Add Item</button></div>
+              <div id="commissionItems"></div>
+              <button type="button" class="primary" style="width:100%;margin-top:14px" onclick="submitCommissionReport()">Process Commission Report</button>
+            </div>
+            <div>
+              <div class="commission-summary"><div class="time-label">SALE RECEIPT · FOURTHHAVEN</div><div class="sale-receipt-line"><span>Customer</span><strong id="receiptCustomer">—</strong></div><div id="receiptItems"><div class="sale-receipt-line"><span>Products</span><strong>—</strong></div></div><div class="sale-receipt-line"><span>Customer total</span><strong id="receiptSpent">$0.00</strong></div><div class="sale-receipt-line sale-receipt-total"><span>Your 10%</span><strong class="commission-big" id="commissionPreview">$0.00</strong></div><div class="tool-note" style="margin-top:12px">Submitted sales go to Manager Override for verification.</div></div>
+              <div class="card" style="margin-top:14px"><h3>Your Reported Commissions</h3><div id="employeeCommissionList"></div></div>
+            </div>
+          </div>
+        </div>
+        <div id="commissionManagerView" class="card span12 hidden"><h3>All Employee Commission Reports</h3><p class="sub">Review reported sales and mark them verified after checking the order.</p><div id="managerCommissionList"></div></div>
+      </div>
+    </section>
+
+
+    <section id="page-messages" class="page">
+      <div class="grid">
+        <div class="card span12">
+          <div class="statusline">
+            <div><h2>Team Messages</h2><p class="sub">Message another Team Hub account. Only accounts that have actually been created appear here.</p></div>
+            <span class="pill">Team Chat</span>
+          </div>
+          <div class="message-shell" style="margin-top:14px">
+            <div>
+              <div class="time-label" style="margin-bottom:8px">Accounts</div>
+              <div id="messagePeople" class="message-people"></div>
+            </div>
+            <div class="message-thread">
+              <div class="message-thread-head" id="messageThreadHead">Choose someone to message</div>
+              <div class="message-list" id="messageList"><div class="message-empty">Select an account to open the conversation.</div></div>
+              <div class="message-compose">
+                <textarea id="messageDraft" placeholder="Write a message…" disabled></textarea>
+                <button type="button" class="primary" id="messageSendBtn" onclick="sendTeamMessage()" disabled>Send</button>
+              </div>
+            </div>
+          </div>
+          <p class="tool-note" style="margin-top:10px">Beta note: until cloud sync is connected, messages only exist in this browser's local Team Hub data.</p>
+        </div>
+      </div>
+    </section>
+
+
+    <section id="page-schedule" class="page">
+      <div class="grid">
+        <div class="card span12">
+          <div class="statusline"><div><h2>Schedule Center</h2><p class="sub">Your assigned shifts, start/end times, and schedule issues in one place.</p></div><span class="pill">4-Hour Shifts</span></div>
+          <div id="employeeScheduleView" class="schedule-grid" style="margin-top:14px"></div>
+          <div id="employeeScheduleIssue" class="card" style="margin-top:14px">
+            <h3>Can't Work / Shift Issue</h3>
+            <div class="schedule-manager-row">
+              <div class="field"><label>Shift</label><select id="scheduleIssueDay"></select></div>
+              <div class="field"><label>Issue</label><select id="scheduleIssueType"><option>Can't work</option><option>Running late</option><option>Need schedule clarification</option><option>Other</option></select></div>
+            </div>
+            <div class="field"><label>What does management need to know?</label><textarea id="scheduleIssueNote" placeholder="Give enough detail for the manager to respond."></textarea></div>
+            <button type="button" class="primary" onclick="submitScheduleIssue()">Send to Manager</button>
+          </div>
+          <div id="managerScheduleView" class="hidden"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="page-pay" class="page">
+      <div class="grid">
+        <div class="card span12">
+          <div class="statusline"><div><h2>My Pay</h2><p class="sub">Estimated gross earnings from Team Hub timecards and reported commission. Final payroll may differ after manager review.</p></div><span class="pill">Sep 28 – Oct 11</span></div>
+          <div class="pay-summary-grid">
+            <div class="pay-summary"><strong id="payHours">0.00</strong><small>Recorded Hours</small></div>
+            <div class="pay-summary"><strong id="payHourly">$0.00</strong><small>Hourly Earnings</small></div>
+            <div class="pay-summary"><strong id="payCommission">$0.00</strong><small>Reported Commission</small></div>
+            <div class="pay-summary"><strong id="payGross">$0.00</strong><small>Estimated Gross</small></div>
+          </div>
+          <div class="tool-note" style="margin-top:12px">Hourly rate: <strong>$7.75/hr</strong> · Scheduled shift earnings display caps at 4 hours ($31.00), while the timecard still records actual clock time for manager review. Expected payday shown in this portal: <strong>October 16, 2026</strong>.</div>
+          <div id="payHistory"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="page-inventory" class="page">
+      <div class="grid">
+        <div class="card span12">
+          <div class="product-hero">
+            <div class="ceo-kicker">Product Knowledge</div>
+            <h2 style="margin:5px 0">NOCTURNE</h2>
+            <p class="sub">Use this page when answering customer questions. Never guess inventory, pricing, or shipping information.</p>
+            <div class="product-facts">
+              <div class="product-fact"><strong>$17.99</strong><small>Presale price</small></div>
+              <div class="product-fact"><strong>$23.99</strong><small>Regular price</small></div>
+              <div class="product-fact"><strong>220 GSM</strong><small>100% cotton</small></div>
+              <div class="product-fact"><strong>S–XL</strong><small>Baggy modern fit</small></div>
+            </div>
+            <div class="tool-note" style="margin-top:12px">Presale ends Oct. 5 · Presale shipping window Oct. 6–20 · Estimated presale completion by Oct. 21. Colors: Black, Gray, Brown, Off-White Brown, Off-White Orange, Pink.</div>
+          </div>
+        </div>
+        <div class="card span12">
+          <div class="statusline"><div><h3>Inventory Board</h3><p class="sub">Manager Override controls the counts. Employees use the board as the current internal reference.</p></div><span class="pill" id="inventoryModePill">View Only</span></div>
+          <div id="inventoryBoard" class="inventory-wrap"></div>
+          <div id="inventoryManagerTools" class="hidden" style="margin-top:12px"><button type="button" class="primary" onclick="saveInventoryFromBoard()">Save Inventory</button></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="page-resources" class="page">
+      <div class="grid">
+        <div class="card span12"><h2>Resources & Training</h2><p class="sub">Fast answers so you can keep working without waiting for management on routine questions.</p></div>
+        <div class="card span12">
+          <div class="resource-accordion"><details><summary>Sales & Customer Service</summary><div class="resource-body"><ul><li>Ask what color/style they actually wear before pitching.</li><li>Explain the current Nocturne price clearly.</li><li>Use Product Knowledge for sizes and current inventory.</li><li>Do not pressure customers or make promises that are not in the Hub.</li><li>Log real sales in Commission Center.</li></ul></div></details><details><summary>Social Media Standards</summary><div class="resource-body"><ul><li>Clear camera quality — no blurry uploads.</li><li>Check spelling, tags, links, and product information before posting.</li><li>Use approved Photo Collection assets.</li><li>Prioritize useful engagement over spam comments or DMs.</li><li>Send required proof before closing.</li></ul></div></details><details><summary>Customer Questions</summary><div class="resource-body"><ul><li>Use Product Knowledge for fabric, fit, sizes, colors, price, and shipping.</li><li>If you do not know an answer, tell the customer you will verify it.</li><li>Do not change policies, pricing, inventory, or order information.</li><li>Escalate order problems or complaints to management.</li></ul></div></details><details><summary>Commission Rules</summary><div class="resource-body"><ul><li>Commission is 10% of qualifying customer spend recorded in the Hub.</li><li>Enter customer, items, colors, sizes, total spend, date, and time accurately.</li><li>Manager verification determines whether a report is approved.</li><li>Never create duplicate or fake sale reports.</li></ul></div></details><details><summary>Proof of Work</summary><div class="resource-body"><ul><li>Use screenshots when a task calls for visual proof.</li><li>Keep customer/private information out of public social posts.</li><li>Closing reports should explain what happened, not just say “done.”</li><li>Use Shift Handoff for anything the next person needs to know.</li></ul></div></details><details><summary>When to Contact the Manager</summary><div class="resource-body"><ul><li>Account/sign-in or platform verification problem.</li><li>Customer complaint, refund/exchange issue, or order discrepancy.</li><li>Inventory/price mismatch.</li><li>Schedule issue or unexpected overtime.</li><li>Anything that could affect the brand publicly.</li></ul></div></details></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="page-profile" class="page">
+      <div class="grid">
+        <div class="card span12">
+          <div class="statusline"><div><h2>Employee Profile</h2><p class="sub">Your Team Hub activity and work statistics.</p></div><span class="pill">My Performance</span></div>
+          <div id="profileDashboard" class="profile-dashboard" style="margin-top:14px"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="page-manager" class="page">
+      <div class="manager-dashboard"><div class="manager-team-status"><div class="statusline"><div><div class="ceo-kicker">FOURTHHAVEN / CONTROL</div><h2 style="margin:4px 0">Team Status</h2><p class="sub" style="margin:0">A fast read of who is working and what needs attention.</p></div><span class="pill" id="managerTeamClock">LIVE</span></div><div id="managerTeamStatusList" class="team-status-list"></div></div>
+
+
+        <div class="card">
+          <div class="statusline">
+            <div><div class="ceo-kicker">Manager Action Center</div><h3 style="margin:4px 0">Needs Your Attention</h3><p class="sub">Commissions, schedule issues, pacing alerts, and employee messages collected in one queue.</p></div>
+            <span class="pill warn" id="managerActionCount">0 actions</span>
+          </div>
+          <div id="managerActionCenter" class="action-center"></div>
+        </div>
+
+        <div class="card ceo-card">
+          <div class="statusline">
+            <div>
+              <div class="ceo-kicker">CEO Message Hub</div>
+              <h3 style="margin-top:5px">Employee Login Message</h3>
+              <p class="sub">Employees see the current message immediately after signing in. This standalone build stores the message on this device; once cloud sync is connected, this same hub will publish it to every employee device.</p>
+            </div>
+            <span class="pill">CEO</span>
+          </div>
+          <textarea id="ceoMessageEditor" placeholder="Write today's message, priority, announcement, or instruction..." style="min-height:130px"></textarea>
+          <div class="manager-toolbar" style="margin-top:10px">
+            <button type="button" class="primary" onclick="publishCEOMessage()">Publish Message</button>
+            <button type="button" onclick="clearCEOMessage()">Clear Message</button>
+            <span class="sub" id="ceoMessageStatus">No message published on this device.</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="statusline">
+            <div>
+              <h2>Manager Override Dashboard</h2>
+              <p class="sub">View employee accounts, timecards, progress, store checks, analytics, social checks, and submitted notes without logging into employee accounts.</p>
+            </div>
+            <div class="manager-toolbar">
+              <span class="live-monitor" id="managerLiveMonitor"><span class="live-monitor-dot"></span><span id="managerLiveText">LIVE · Starting…</span></span>
+              <button type="button" id="managerAddEmployeeBtn">+ Add Employee</button>
+              <button type="button" id="refreshManagerBtn">Refresh Now</button>
+            </div>
+          </div>
+          <div class="manager-stats" id="managerStats"></div>
+        </div>
+
+
+
+        <div class="card">
+          <div class="statusline">
+            <div>
+              <h3>Employee Production</h3>
+              <p class="sub">Task completion across the current week. Click an employee name for their detailed production statistics.</p>
+            </div>
+            <span class="pill">LIVE STATS</span>
+          </div>
+          <div class="production-layout">
+            <div id="productionChart" class="production-chart"></div>
+            <div id="productionDetail" class="production-detail"><div class="manager-empty">Click an employee name to inspect their statistics.</div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="statusline"><div><h3>Pacing & Skip Alerts</h3><p class="sub">Automatic reports created after repeated fast task attempts or serious schedule delays.</p></div><span class="pill warn" id="managerAlertCount">0 alerts</span></div>
+          <div id="managerPacingAlerts"></div>
+        </div>
+
+        <div class="card">
+          <h3>Employee Roster</h3>
+          <p class="sub">Click an employee to open their full weekly report.</p>
+          <div class="employee-roster" id="managerRoster"></div>
+        </div>
+
+
+        <div class="grid">
+          <div class="card span6">
+            <h3>Report Versions</h3>
+            <p class="sub">Live mode updates automatically. Snapshots are preserved separately so you can inspect older versions without changing employee data.</p>
+            <button type="button" id="returnLiveBtn" style="width:100%;margin-bottom:10px">Return to LIVE View</button>
+            <div class="snapshot-list" id="managerSnapshots"></div>
+          </div>
+          <div class="card span6">
+            <h3>Manager Change Log</h3>
+            <p class="sub">Administrative edits are recorded here for accountability.</p>
+            <div class="audit-list" id="managerAudit"></div>
+          </div>
+        </div>
+
+        <div class="card" id="managerReportCard">
+          <div id="managerReport">
+            <div class="manager-empty">Choose an employee above to view their report.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="mobile-nav" aria-label="Mobile navigation"><a href="#overview" data-page-link="overview"><span>⌂</span><span class="date">Home</span></a><a id="mobileShiftLink" href="#0929"><span>✓</span><span class="date">Shift</span></a><button type="button" class="quick-plus" onclick="openQuickActions()" aria-label="Quick actions">＋</button><a href="#messages" data-page-link="messages"><span>↗</span><span class="date">Chat</span></a><a href="#profile" data-page-link="profile"><span>○</span><span class="date">Me</span></a></nav>
+
+  <div class="footer-note">Beta build · employee data currently saves on this browser/device. Cloud syncing is the next deployment phase.</div>
+</div>
+
+<script src="assets/js/app.js"></script>
+</body>
+</html>
